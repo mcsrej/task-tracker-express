@@ -1,0 +1,32 @@
+{
+  "name": "task-tracker-express",
+  "version": "0.0.0",
+  "description": "Trello clone",
+  "homepage": "https://github.com/mcsrej/task-tracker-express#readme",
+  "bugs": {
+    "url": "https://github.com/mcsrej/task-tracker-express/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mcsrej/task-tracker-express.git"
+  },
+  "license": "ISC",
+  "author": "mcsrej",
+  "type": "commonjs",
+  "main": "src/index.ts",
+  "scripts": {
+    "start": "ts-node src/index",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon src/index.ts"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "nodemon": "^3.1.11",
+    "prettier": "^3.8.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
