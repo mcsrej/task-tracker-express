@@ -23,6 +23,7 @@ async function run() {
     response.send('ok');
   });
   server.use('/boards', boardsRouter);
+  server.use('/boards/:boardId/columns', boardsRouter);
   server.use('/cards', cardsRouter);
 
   server.listen(PORT);
