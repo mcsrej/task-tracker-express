@@ -9,22 +9,28 @@ import {
 } from '../database/cards-repository';
 import { randomUUID } from 'crypto';
 import { validateCardInput } from './validation/validate-card-input';
-import { CardIdParams } from '../types/common';
+import { CardIdParams, ColumnIdParams } from '../types/common';
 
-export const cardsRouter = express.Router();
+export const cardsRouter = express.Router({mergeParams: true});
 
 cardsRouter.get(
   '/',
-  async (request: Request<{}, {}>, response: Response<GetCardsResponse>) => {
-    const cards = await getManyCards();
+  async (
+    request: Request<ColumnIdParams, {}>,
+    response: Response<GetCardsResponse>,
+  ) => {
+    const cards = await getManyCards(request.params.columnId);
     response.send(cards);
   },
 );
 
 cardsRouter.get(
-  '/:id',
+  '/:cardId',
   async (request: Request<CardIdParams, {}>, response: Response<Card>) => {
-    const card = await getOneCard(request.params.cardId);
+    const card = await getOneCard(
+      request.params.cardId,
+      request.params.columnId,
+    );
 
     if (!card) {
       return response.sendStatus(404);
@@ -37,12 +43,13 @@ cardsRouter.post(
   '/',
   validateCardInput,
   async (
-    request: Request<{}, Card, CreateCardRequest>,
+    request: Request<ColumnIdParams, Card, CreateCardRequest>,
     response: Response<Card>,
   ) => {
     const card: Card = {
       text: request.body.text,
       id: randomUUID(),
+      columnId: request.params.columnId,
     };
 
     await createCard(card);
@@ -51,7 +58,7 @@ cardsRouter.post(
 );
 
 cardsRouter.put(
-  '/:id',
+  '/:cardId',
   validateCardInput,
   async (
     request: Request<CardIdParams, Card, CreateCardRequest>,
@@ -60,6 +67,7 @@ cardsRouter.put(
     const card = {
       id: request.params.cardId,
       text: request.body.text,
+      columnId: request.params.columnId,
     };
 
     await updateCard(card);
@@ -69,9 +77,9 @@ cardsRouter.put(
 );
 
 cardsRouter.delete(
-  '/:id',
+  '/:cardId',
   async (request: Request<CardIdParams>, response: Response<void>) => {
-    await deleteCard(request.params.cardId);
+    await deleteCard(request.params.cardId, request.params.columnId);
     response.sendStatus(204);
   },
 );
