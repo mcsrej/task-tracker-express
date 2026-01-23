@@ -1,4 +1,5 @@
 import { Card } from '../types/cards';
+import { CardIdParams, ColumnIdParams } from '../types/common';
 import { sqliteAll, sqliteGet, sqliteRun } from './db-connection';
 
 export const createCard = async (card: Card): Promise<void> => {
@@ -15,10 +16,10 @@ export const createCard = async (card: Card): Promise<void> => {
 export const updateCard = async (card: Card): Promise<void> => {
   await sqliteRun(
     `
-        UPDATE cards SET text = ?
-        WHERE id = ? AND column_id = ?;
+        UPDATE cards SET text = ?, column_id = ?
+        WHERE id = ?;
         `,
-    [card.text, card.id, card.columnId],
+    [card.text, card.columnId, card.id],
   );
 };
 
@@ -35,16 +36,19 @@ export const deleteCard = async (
   );
 };
 
-export const getOneCard = async (
-  id: string,
-  columnId: string,
-): Promise<Card | null> => {
+export const getOneCard = async ({
+  cardId,
+  columnId,
+  boardId,
+}: CardIdParams): Promise<Card | null> => {
   const data = await sqliteGet(
     `
-        SELECT id, text, column_id AS "columnId" FROM cards
-        WHERE id = ? AND column_id = ?;
+        SELECT cards.id, cards.text, cards.column_id AS "columnId"
+        FROM cards LEFT JOIN columns
+        ON cards.column_id = columns.id
+        WHERE cards.id = ? AND columns.id = ? AND columns.board_id = ?
         `,
-    [id, columnId],
+    [cardId, columnId, boardId],
   );
 
   if (isCard(data)) {
@@ -54,13 +58,18 @@ export const getOneCard = async (
   return null;
 };
 
-export const getManyCards = async (columnId: string): Promise<Card[]> => {
+export const getManyCards = async ({
+  boardId,
+  columnId,
+}: ColumnIdParams): Promise<Card[]> => {
   const data = await sqliteAll(
     `
-        SELECT id, text, column_id AS "columnId" FROM cards
-        WHERE column_id = ?;
+        SELECT cards.id, cards.text, cards.column_id AS "columnId"
+        FROM cards LEFT JOIN columns
+        ON cards.column_id = columns.id
+        WHERE columns.id = ? AND columns.board_id = ?
         `,
-    [columnId],
+    [columnId, boardId],
   );
 
   if (!Array.isArray(data)) {
