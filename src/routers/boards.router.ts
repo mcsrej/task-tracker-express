@@ -1,5 +1,5 @@
 import express, { Response, Request } from 'express';
-import { Board, CreateBoardRequest, GetBoardsResponse } from '../types/boards';
+import { Board, CreateBoardRequest, GetBoardResponse, GetBoardsResponse } from '../types/boards';
 import { BoardIdParams } from '../types/common';
 import {
   createBoard,
@@ -23,7 +23,10 @@ boardsRouter.get(
 
 boardsRouter.get(
   '/:boardId',
-  async (request: Request<BoardIdParams, {}>, response: Response<Board>) => {
+  async (
+    request: Request<BoardIdParams, GetBoardResponse | string>,
+    response: Response<GetBoardResponse | string>,
+  ) => {
     const board = await getOneBoard(request.params.boardId);
 
     if (!board) {
